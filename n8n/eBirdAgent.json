@@ -1,0 +1,847 @@
+{
+  "name": "eBirdAgent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "db29d889-908e-4ac0-a3d9-1522c49f9b50",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://api.ebird.org/v2/data/obs/geo/recent/notable?lat=37.4894467&lng=-121.9370132&dist=50&hotspot=true&detail=full&back=7",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        0
+      ],
+      "id": "3e41741d-2f52-413d-ae88-34566f625070",
+      "name": "eBirdAPI",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "l9QjJwGAHJl1Mmyz",
+          "name": "eBird API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "speciesCode, userDisplayName, locId, obsDt, subId",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "e0f805be-96d5-479e-94b7-d21696d90780",
+      "name": "Remove Duplicate Sightings"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        224
+      ],
+      "id": "2e5c59b5-c099-4c6e-83e6-b351709eee0c",
+      "name": "Remove Duplicate Coordinates"
+    },
+    {
+      "parameters": {
+        "operation": "5DayForecast",
+        "format": "imperial",
+        "locationSelection": "coordinates",
+        "latitude": "={{ $json.lat }}",
+        "longitude": "={{ $json.lng }}"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        224
+      ],
+      "id": "06c9b79c-5f7c-4175-b65f-79c22b7b5393",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "qkhfX2yVcBJd0kXX",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "93d5e17c-d099-4966-ad2b-8bf520384219",
+              "name": "speciesCode",
+              "value": "={{ $json.speciesCode }}",
+              "type": "string"
+            },
+            {
+              "id": "21a9af0a-b1ef-4228-aa25-837a8a2fa987",
+              "name": "comName",
+              "value": "={{ $json.comName }}",
+              "type": "string"
+            },
+            {
+              "id": "49edd31c-7da2-4f95-b0f5-0a689e0c28a7",
+              "name": "locId",
+              "value": "={{ $json.locId }}",
+              "type": "string"
+            },
+            {
+              "id": "c5f16357-77dd-4e22-b71e-a18f439ac9f3",
+              "name": "locName",
+              "value": "={{ $json.locName }}",
+              "type": "string"
+            },
+            {
+              "id": "f7666e0c-7bef-4957-8f01-68649b80d332",
+              "name": "howMany",
+              "value": "={{ $json.howMany }}",
+              "type": "number"
+            },
+            {
+              "id": "8ace18cc-36e8-4b14-ba6b-0c73e4920d95",
+              "name": "obsDt",
+              "value": "={{ $json.obsDt }}",
+              "type": "string"
+            },
+            {
+              "id": "32a238c9-758c-4f7e-8ac6-a5a06c68dd7e",
+              "name": "lat",
+              "value": "={{ $json.lat }}",
+              "type": "number"
+            },
+            {
+              "id": "060eea53-db2f-4907-8301-f5089edbca37",
+              "name": "lng",
+              "value": "={{ $json.lng }}",
+              "type": "number"
+            },
+            {
+              "id": "055bc78d-3894-40a8-aec0-174a1f9e1cc2",
+              "name": "subId",
+              "value": "={{ $json.subId }}",
+              "type": "string"
+            },
+            {
+              "id": "7a05c71a-f974-4756-b6a6-bce4865bc820",
+              "name": "userDisplayName",
+              "value": "={{ $json.userDisplayName }}",
+              "type": "string"
+            },
+            {
+              "id": "09858c5c-b10c-47f7-8de9-a8b50d9f3daa",
+              "name": "obsId",
+              "value": "={{ $json.obsId }}",
+              "type": "string"
+            },
+            {
+              "id": "04a9a125-a257-4534-af60-211d333c17fc",
+              "name": "latFixed4",
+              "value": "={{ $json.lat.toFixed(4) }}",
+              "type": "number"
+            },
+            {
+              "id": "3b512bb7-9c64-48a8-95d0-d393e9b41818",
+              "name": "lngFixed4",
+              "value": "={{ $json.lng.toFixed(4) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        704,
+        0
+      ],
+      "id": "d99e3701-634b-4a9b-940b-a2a8e30bbc0d",
+      "name": "Add Short Coordinates"
+    },
+    {
+      "parameters": {
+        "jsCode": "$input.all().forEach(weather => {\n    // Apply the time filtering to the nested 'list' array\n    const filteredList = weather.json.list.filter(item => {\n        // Ensure item and dt_txt exist before checking the criteria\n        if (item && item.dt_txt) {\n            // Use endsWith() for a cleaner, more reliable check\n            return item.dt_txt.endsWith(\"06:00:00\") || item.dt_txt.endsWith(\"09:00:00\");\n        }\n      \n        return false;\n    }); \n\n  weather.json.list = filteredList;\n  \n});\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        224
+      ],
+      "id": "1236499a-aa14-4a0c-8bd6-8981c265cebd",
+      "name": "Keep Weather Data From 6 am to 12 pm"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f4918ea-0d46-4d27-91fe-7bd155b86991",
+              "name": "duration",
+              "value": "={{ ($('Map Box API').item.json.routes[0].duration / 60).toFixed(2) }}",
+              "type": "number"
+            },
+            {
+              "id": "7a72a305-3bd3-40bf-938d-019918b74612",
+              "name": "distance",
+              "value": "={{ ($('Map Box API').item.json.routes[0].distance * 0.00062137).toFixed(2) }}",
+              "type": "number"
+            },
+            {
+              "id": "3703662f-0410-4145-a480-fb7352521755",
+              "name": "latitude",
+              "value": "={{ $('Remove Duplicate Coordinates').item.json.lat.toFixed(4) }}",
+              "type": "number"
+            },
+            {
+              "id": "8f7bfcd6-2825-43a6-b1c4-b8d5d93ac2b5",
+              "name": "longitude",
+              "value": "={{ $('Remove Duplicate Coordinates').item.json.lng.toFixed(4) }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1488,
+        448
+      ],
+      "id": "266242d7-c0dc-4809-8a37-fbfeb0c30200",
+      "name": "Extract Time and Distance"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ce50137-7c21-444c-b920-98b5a1206bc9",
+              "name": "lat",
+              "value": "={{ $json.lat }}",
+              "type": "number"
+            },
+            {
+              "id": "eb0a477b-894e-440a-bae9-e1d41e4dc560",
+              "name": "lng",
+              "value": "={{ $json.lng }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        960,
+        224
+      ],
+      "id": "b9a43ce4-f296-47a0-a43e-46c2b9d7886c",
+      "name": "Coordinates Only"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mapbox.com/directions/v5/mapbox/driving/-121.9370132,37.4894467;{{$json.lng}},{{$json.lat}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpCustomAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "alternatives",
+              "value": "false"
+            },
+            {
+              "name": "geometries",
+              "value": "geojson"
+            },
+            {
+              "name": "overview",
+              "value": "simplified"
+            },
+            {
+              "name": "steps",
+              "value": "false"
+            },
+            {
+              "name": "notifications",
+              "value": "none"
+            },
+            {
+              "name": "depart_at",
+              "value": "2025-10-26T06:30"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1296,
+        448
+      ],
+      "id": "699b36fc-f9aa-4f6b-8835-a103f7d3da7d",
+      "name": "Map Box API",
+      "credentials": {
+        "httpCustomAuth": {
+          "id": "2lqJ5Ho0PHVspGTT",
+          "name": "Map Box API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7fd24021-d599-4d14-9a8b-e9c5605503a0",
+              "name": "birdName",
+              "value": "={{ $json.comName }}",
+              "type": "string"
+            },
+            {
+              "id": "b8fc8e2f-92b8-4faa-a302-39a694f55db1",
+              "name": "obsDt",
+              "value": "={{ $json.obsDt }}",
+              "type": "string"
+            },
+            {
+              "id": "2347bc7a-805b-4763-8664-7c4fb5f8658b",
+              "name": "howMany",
+              "value": "={{ $json.howMany }}",
+              "type": "number"
+            },
+            {
+              "id": "a06f0abd-2066-4945-936e-35dca7a13236",
+              "name": "locName",
+              "value": "={{ $json.locName }}",
+              "type": "string"
+            },
+            {
+              "id": "7a91e7a9-aa9c-4d0b-8d9f-d1c956449cbf",
+              "name": "locId",
+              "value": "={{ $json.locId }}",
+              "type": "string"
+            },
+            {
+              "id": "b9b8ccdc-11ae-41a2-a57c-b8c74bdbbf40",
+              "name": "subId",
+              "value": "={{ $json.subId }}",
+              "type": "string"
+            },
+            {
+              "id": "8f716687-8891-4247-89f3-fabb72292cbb",
+              "name": "userDisplayName",
+              "value": "={{ $json.userDisplayName }}",
+              "type": "string"
+            },
+            {
+              "id": "0e2618ef-951c-4b25-b6df-769942cda88e",
+              "name": "cityName",
+              "value": "={{ $json.city.name }}",
+              "type": "string"
+            },
+            {
+              "id": "de2e4715-4e2e-4920-a2a1-278d8dd85ca9",
+              "name": "drivingTimeMinutes",
+              "value": "={{ $json.duration }}",
+              "type": "number"
+            },
+            {
+              "id": "c5611375-006e-44d7-8a3c-013bef137c14",
+              "name": "distanceMiles",
+              "value": "={{ $json.distance }}",
+              "type": "number"
+            },
+            {
+              "id": "fb817f12-b6da-4826-bcf5-9a66a8b981ca",
+              "name": "weatherNext5Days.day1.date",
+              "value": "={{ $json.list[0].dt_txt }}",
+              "type": "string"
+            },
+            {
+              "id": "39bd5a24-1b46-4351-ba5e-7ec626c60fc5",
+              "name": "weatherNext5Days.day1.description",
+              "value": "={{ $json.list[0].weather[0].description }}",
+              "type": "string"
+            },
+            {
+              "id": "b1de36da-3041-4fc1-b8b0-bb2521744b10",
+              "name": "weatherNext5Days.day1.temperature",
+              "value": "={{ $json.list[0].main.temp }}",
+              "type": "string"
+            },
+            {
+              "id": "e2ff778e-646e-4b7b-8aa0-dab71cb15913",
+              "name": "weatherNext5Days.day2.windSpeed",
+              "value": "={{ $json.list[0].wind.speed }}",
+              "type": "string"
+            },
+            {
+              "id": "e73c2175-92d2-4f80-84dd-45c73a1f1f53",
+              "name": "weatherNext5Days.day2.date",
+              "value": "={{ $json.list[2].dt_txt }}",
+              "type": "string"
+            },
+            {
+              "id": "031b5340-611d-4760-a9eb-ae3748ecbae9",
+              "name": "weatherNext5Days.day2.description",
+              "value": "={{ $json.list[2].weather[0].description }}",
+              "type": "string"
+            },
+            {
+              "id": "29331d2b-b1d8-448f-95d5-b0572e92609f",
+              "name": "weatherNext5Days.day2.temperature",
+              "value": "={{ $json.list[2].main.temp }}",
+              "type": "string"
+            },
+            {
+              "id": "858c8c6a-8376-4717-9c77-728f7e96be9a",
+              "name": "weatherNext5Days.day2.windSpeed",
+              "value": "={{ $json.list[2].wind.speed }}",
+              "type": "string"
+            },
+            {
+              "id": "2353925c-96fb-4175-b86b-29a55a07037a",
+              "name": "weatherNext5Days.day3.date",
+              "value": "={{ $json.list[4].dt_txt }}",
+              "type": "string"
+            },
+            {
+              "id": "65357cb9-6e2b-446d-ad58-f8a3ea8a9684",
+              "name": "weatherNext5Days.day3.description",
+              "value": "={{ $json.list[4].weather[0].description }}",
+              "type": "string"
+            },
+            {
+              "id": "96dc7d28-f4a3-46dc-9edd-56927a111c28",
+              "name": "weatherNext5Days.day3.temperature",
+              "value": "={{ $json.list[4].main.temp }}",
+              "type": "string"
+            },
+            {
+              "id": "f3e68da7-52c7-4aa5-ae98-f822c556c703",
+              "name": "weatherNext5Days.day3.windSpeed",
+              "value": "={{ $json.list[4].wind.speed }}",
+              "type": "string"
+            },
+            {
+              "id": "a1ac7722-b8a2-47d5-b58f-6dbbc37e60eb",
+              "name": "weatherNext5Days.day4.date",
+              "value": "={{ $json.list[6].dt_txt }}",
+              "type": "string"
+            },
+            {
+              "id": "a0e83882-47da-41d2-935b-93c74929b8bf",
+              "name": "weatherNext5Days.day4.description",
+              "value": "={{ $json.list[6].weather[0].description }}",
+              "type": "string"
+            },
+            {
+              "id": "5c55c405-dcdc-4f51-8b4c-611ca315b809",
+              "name": "weatherNext5Days.day4.temperature",
+              "value": "={{ $json.list[6].main.temp }}",
+              "type": "string"
+            },
+            {
+              "id": "2fbb471f-bc92-4950-bd62-0337123b3bc7",
+              "name": "weatherNext5Days.day4.windSpeed",
+              "value": "={{ $json.list[6].wind.speed }}",
+              "type": "string"
+            },
+            {
+              "id": "b05266ae-5bd6-45fa-9dc3-b149075cb062",
+              "name": "weatherNext5Days.day5.date",
+              "value": "={{ $json.list[8].dt_txt }}",
+              "type": "string"
+            },
+            {
+              "id": "3674edf0-df28-4d9e-8f43-8b9b4d3dec0a",
+              "name": "weatherNext5Days.day5.description",
+              "value": "={{ $json.list[8].weather[0].description }}",
+              "type": "string"
+            },
+            {
+              "id": "e9e2d11d-6ea0-4faa-a181-e5cd2b9ee8b2",
+              "name": "weatherNext5Days.day5.temperature",
+              "value": "={{ $json.list[8].main.temp }}",
+              "type": "string"
+            },
+            {
+              "id": "dfd6eb2c-b3a3-4a94-9b20-28563593c512",
+              "name": "weatherNext5Days.day5.windSpeed",
+              "value": "={{ $json.list[8].wind.speed }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2176,
+        32
+      ],
+      "id": "4f480ad9-4d17-4ae7-91d0-7d785d6af000",
+      "name": "Filter Out Unneeded Data"
+    },
+    {
+      "parameters": {
+        "sendTo": "tausif.farooqi@gmail.com",
+        "subject": "={{ \"eBird Bird Report - \" + new Date().toISOString().slice(0, 10) }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2864,
+        32
+      ],
+      "id": "e8087103-e805-4cea-ab17-bbabf40f1a0a",
+      "name": "Send a message",
+      "webhookId": "8e7c379b-0343-4d28-8d7f-af70e33987af",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "v8QnK4zwKJXjQ2Ws",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "latFixed4",
+              "field2": "city.coord.lat"
+            },
+            {
+              "field1": "lngFixed4",
+              "field2": "city.coord.lon"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1760,
+        16
+      ],
+      "id": "29ef00dd-9e04-4034-993e-336d07dc6428",
+      "name": "Combine Sightings and Weather"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "latFixed4",
+              "field2": "latitude"
+            },
+            {
+              "field1": "lngFixed4",
+              "field2": "longitude"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1984,
+        32
+      ],
+      "id": "72e9c056-124f-465e-8519-f2806abcd8e0",
+      "name": "Combine Sightings, Weather, and Distance"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                4
+              ],
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -240
+      ],
+      "id": "88da4a06-3e68-4280-b768-d756031419dc",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Get all incoming items from the previous node\nconst allItems = $input.all();\n\n// Dictionary to hold grouped data\nconst groups = {};\n\n// 2. Iterate through all items to aggregate them\nfor (const item of allItems) {\n  // Access the actual data under the 'json' property\n  const obs = item.json;\n\n  // Extract date (YYYY-MM-DD) from \"YYYY-MM-DD HH:MM\"\n  // Safe check in case obsDt is missing\n  const dateStr = obs.obsDt ? obs.obsDt.split(' ')[0] : 'Unknown Date';\n\n  // Create a unique key for grouping: Bird + Date + Location ID\n  const key = `${obs.birdName}|${dateStr}|${obs.locId}`;\n\n  if (!groups[key]) {\n    // Initialize the aggregated node if it doesn't exist\n    groups[key] = {\n      birdName: obs.birdName,\n      date: dateStr,\n      location: obs.locName,\n      locId: obs.locId,\n      maxCount: 0,\n      observers: new Set(), // Using a Set to automatically handle unique names\n      distanceMiles: obs.distanceMiles,\n      drivingTimeMinutes: obs.drivingTimeMinutes,\n      cityName: obs.cityName,\n      checklistUrls: [],\n      weatherNext5Days: obs.weatherNext5Days\n    };\n  }\n\n  // Retrieve the group entry to update it\n  const entry = groups[key];\n\n  // Logic: Update Max Count\n  const count = parseInt(obs.howMany) || 0;\n  if (count > entry.maxCount) {\n    entry.maxCount = count;\n  }\n\n  // Logic: Add Observer (Set prevents duplicates)\n  if (obs.userDisplayName) {\n    entry.observers.add(obs.userDisplayName);\n  }\n\n  // Logic: Add Checklist URL\n  if (obs.subId) {\n    const url = `https://ebird.org/checklist/${obs.subId}`;\n    if (!entry.checklistUrls.includes(url)) {\n      entry.checklistUrls.push(url);\n    }\n  }\n}\n\n// 3. Convert the grouped object back into an array\nlet report = Object.values(groups).map(item => {\n  return {\n    ...item,\n    observerCount: item.observers.size,\n    observers: Array.from(item.observers), // Convert Set back to Array for JSON\n  };\n});\n\n// 4. Rank the results\nreport.sort((a, b) => {\n  // Priority 1: Recency (Date descending)\n  const dateA = new Date(a.date);\n  const dateB = new Date(b.date);\n  if (dateA > dateB) return -1;\n  if (dateA < dateB) return 1;\n\n  // Priority 2: Number of observers (Descending)\n  if (b.observerCount !== a.observerCount) {\n    return b.observerCount - a.observerCount;\n  }\n\n  // Priority 3: Distance (Ascending) - smaller distance is better\n  return (a.distanceMiles || 0) - (b.distanceMiles || 0);\n});\n\n// 5. Return the data in n8n format: [{json: item}, {json: item}]\nreturn report.map(item => ({ json: item }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        32
+      ],
+      "id": "e7040bf7-d44b-45e7-ac6b-4f943dbf3525",
+      "name": "Aggregate JSON Report"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ======================================================\n// 1. Define Inline Styles as Constants\n//    (This makes the code cleaner and easier to edit)\n// ======================================================\n\nconst styles = {\n  body: 'font-family: \\'Segoe UI\\', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 40px; line-height: 1.6;',\n  container: 'max-width: 1000px; margin: 0 auto; background: #fff; padding: 50px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08);',\n  \n  // Header\n  headerDiv: 'text-align: center; margin-bottom: 50px; border-bottom: 2px solid #f0f2f5; padding-bottom: 20px;',\n  headerH1: 'color: #1a365d; margin: 0 0 10px 0; font-size: 2.5rem; letter-spacing: -0.5px;',\n  headerP: 'color: #718096; font-size: 1.1rem; margin: 0;',\n  \n  // Cards\n  card: 'border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 30px; overflow: hidden; background: #fff;',\n  cardTop: 'background: linear-gradient(135deg, #2c5282 0%, #2b6cb0 100%); color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;',\n  birdName: 'font-size: 1.4rem; font-weight: 700; margin: 0; color: white;',\n  dateBadge: 'background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 500; color: white;',\n  cardContent: 'padding: 25px;',\n  \n  // Location\n  locBanner: 'display: flex; align-items: center; color: #4a5568; font-weight: 600; margin-bottom: 20px; font-size: 1.05rem;',\n  locIcon: 'margin-right: 8px; color: #e53e3e;',\n  locCity: 'font-weight:400; color:#a0aec0; margin-left:8px;',\n  \n  // Metrics Grid (Using Flexbox for email compatibility as Grid support varies)\n  metricsGrid: 'display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px;',\n  metricBox: 'background: #f7fafc; padding: 15px; border-radius: 8px; border-left: 4px solid #4299e1; flex: 1 1 150px; min-width: 150px; margin: 5px;',\n  metricLabel: 'font-size: 0.75rem; text-transform: uppercase; color: #718096; letter-spacing: 0.5px; display: block; margin-bottom: 5px;',\n  metricValue: 'font-size: 1.1rem; font-weight: 700; color: #2d3748;',\n  \n  // Section Headers\n  sectionLabel: 'font-size: 0.85rem; font-weight: 700; color: #a0aec0; text-transform: uppercase; margin-bottom: 10px; display: block;',\n  \n  // Observer Tags (Links)\n  observerTag: 'display: inline-block; background: #ebf8ff; color: #2b6cb0; padding: 4px 12px; border-radius: 15px; font-size: 0.9rem; margin-right: 8px; margin-bottom: 8px; border: 1px solid #bee3f8; text-decoration: none;',\n  \n  // Weather\n  weatherSection: 'background: #fffaf0; border: 1px solid #feebc8; border-radius: 8px; padding: 15px;',\n  weatherGrid: 'display: flex; justify-content: space-between; gap: 10px; margin-top: 10px; text-align: center; overflow-x: auto;',\n  weatherDay: 'background: white; padding: 10px 5px; border-radius: 6px; border: 1px solid #edf2f7; flex: 1; min-width: 60px;',\n  wDate: 'font-size: 0.75rem; color: #718096; display: block; margin-bottom: 5px;',\n  wDesc: 'font-size: 0.8rem; font-weight: 600; color: #2d3748; display: block; margin-bottom: 5px; height: 35px; line-height: 1.2; display: flex; align-items: center; justify-content: center;',\n  wTemp: 'font-size: 0.95rem; font-weight: 800; color: #dd6b20;'\n};\n\n// ======================================================\n// 2. Initialize Report HTML\n// ======================================================\nconst today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });\n\nlet htmlContent = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Bird Sighting Report</title>\n</head>\n<body style=\"${styles.body}\">\n  <div style=\"${styles.container}\">\n    <div style=\"${styles.headerDiv}\">\n      <h1 style=\"${styles.headerH1}\">Bird Sighting Analysis Report</h1>\n      <p style=\"${styles.headerP}\">Generated on ${today}</p>\n    </div>\n`;\n\n// ======================================================\n// 3. Loop Through Input Data\n// ======================================================\nconst items = $input.all();\n\nfor (const item of items) {\n    const data = item.json;\n    \n    // --- Weather Formatting ---\n    let weatherHtml = `<div style=\"${styles.weatherGrid}\">`;\n    if (data.weatherNext5Days) {\n        const weatherDays = Object.values(data.weatherNext5Days).slice(0, 5);\n        weatherDays.forEach((day, index) => {\n            let wDate = `Day ${index + 1}`;\n            if (day.date) {\n                const d = new Date(day.date);\n                if (!isNaN(d)) {\n                   wDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });\n                }\n            }\n            weatherHtml += `\n            <div style=\"${styles.weatherDay}\">\n                <span style=\"${styles.wDate}\">${wDate}</span>\n                <span style=\"${styles.wDesc}\">${day.description || 'N/A'}</span>\n                <span style=\"${styles.wTemp}\">${Math.round(parseFloat(day.temperature) || 0)}°F</span>\n            </div>`;\n        });\n    } else {\n        weatherHtml += '<div style=\"width: 100%; text-align:center; color:#a0aec0;\">No weather data available</div>';\n    }\n    weatherHtml += '</div>';\n\n    // --- Observer Links Formatting ---\n    let observersHtml = '';\n    if (data.sightings && Array.isArray(data.sightings)) {\n        observersHtml = data.sightings\n            .map(s => `<a href=\"${s.url}\" target=\"_blank\" style=\"${styles.observerTag}\" title=\"View Checklist\">${s.name}</a>`)\n            .join('');\n    } else if (data.observers && Array.isArray(data.observers)) {\n        // Fallback for older format\n        observersHtml = data.observers.map((name, index) => {\n            const url = (data.checklistUrls && data.checklistUrls[index]) ? data.checklistUrls[index] : '#';\n            return `<a href=\"${url}\" target=\"_blank\" style=\"${styles.observerTag}\" title=\"View Checklist\">${name}</a>`;\n        }).join('');\n    }\n\n    // --- Build Card HTML ---\n    htmlContent += `\n    <div style=\"${styles.card}\">\n      <div style=\"${styles.cardTop}\">\n        <h2 style=\"${styles.birdName}\">${data.birdName}</h2>\n        <span style=\"${styles.dateBadge}\">${data.date}</span>\n      </div>\n      \n      <div style=\"${styles.cardContent}\">\n        <div style=\"${styles.locBanner}\">\n          <span style=\"${styles.locIcon}\">📍</span>\n          ${data.location} <span style=\"${styles.locCity}\">(${data.cityName})</span>\n        </div>\n\n        <div style=\"${styles.metricsGrid}\">\n          <div style=\"${styles.metricBox}\">\n            <span style=\"${styles.metricLabel}\">Max Count</span>\n            <span style=\"${styles.metricValue}\">${data.maxCount}</span>\n          </div>\n          <div style=\"${styles.metricBox}\">\n            <span style=\"${styles.metricLabel}\">Observers</span>\n            <span style=\"${styles.metricValue}\">${data.observerCount}</span>\n          </div>\n          <div style=\"${styles.metricBox}\">\n            <span style=\"${styles.metricLabel}\">Distance</span>\n            <span style=\"${styles.metricValue}\">${data.distanceMiles ? data.distanceMiles.toFixed(1) : '0'} mi</span>\n          </div>\n          <div style=\"${styles.metricBox}\">\n            <span style=\"${styles.metricLabel}\">Drive Time</span>\n            <span style=\"${styles.metricValue}\">${data.drivingTimeMinutes ? Math.round(data.drivingTimeMinutes) : '0'} min</span>\n          </div>\n        </div>\n\n        <div style=\"margin-bottom: 25px;\">\n          <span style=\"${styles.sectionLabel}\">Observed By (Click name for checklist)</span>\n          ${observersHtml}\n        </div>\n\n        <div style=\"${styles.weatherSection}\">\n          <span style=\"${styles.sectionLabel} color:#dd6b20;\">5-Day Forecast</span>\n          ${weatherHtml}\n        </div>\n      </div>\n    </div>\n    `;\n}\n\n// ======================================================\n// 4. Finalize\n// ======================================================\nhtmlContent += `\n  </div>\n</body>\n</html>\n`;\n\nreturn [{\n    json: {\n        html: htmlContent\n    }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        32
+      ],
+      "id": "56ea3a4e-17d5-49bf-9e1a-3ef5a1fb25b8",
+      "name": "Format as HTML"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "eBirdAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "eBirdAPI": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Sightings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Sightings": {
+      "main": [
+        [
+          {
+            "node": "Add Short Coordinates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicate Coordinates": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Map Box API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Keep Weather Data From 6 am to 12 pm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Short Coordinates": {
+      "main": [
+        [
+          {
+            "node": "Coordinates Only",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine Sightings and Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Weather Data From 6 am to 12 pm": {
+      "main": [
+        [
+          {
+            "node": "Combine Sightings and Weather",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Extract Time and Distance": {
+      "main": [
+        [
+          {
+            "node": "Combine Sightings, Weather, and Distance",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Coordinates Only": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicate Coordinates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Box API": {
+      "main": [
+        [
+          {
+            "node": "Extract Time and Distance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Out Unneeded Data": {
+      "main": [
+        [
+          {
+            "node": "Aggregate JSON Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Sightings and Weather": {
+      "main": [
+        [
+          {
+            "node": "Combine Sightings, Weather, and Distance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Sightings, Weather, and Distance": {
+      "main": [
+        [
+          {
+            "node": "Filter Out Unneeded Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "eBirdAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate JSON Report": {
+      "main": [
+        [
+          {
+            "node": "Format as HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format as HTML": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ebd2400-3a6f-4571-b509-64352c97ac0a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "92ed9659bb361bfb4e4d3ff7a456a22e6ea422ede16d90a89433ad6bc4016866"
+  },
+  "id": "08UHfbMcE6kaEjt4",
+  "tags": []
+}
