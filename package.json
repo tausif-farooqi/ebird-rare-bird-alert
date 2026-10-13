@@ -1,0 +1,20 @@
+{
+  "name": "ebird-rare-bird-alert",
+  "version": "1.0.0",
+  "description": "Standalone Node.js replacement for the eBirdAgent n8n workflow: finds notable nearby bird sightings, enriches them with weather and driving distance, and emails an HTML report.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "schedule": "node scheduler.js"
+  },
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.5",
+    "node-cron": "^4.6.0",
+    "nodemailer": "^10.1.0"
+  }
+}
