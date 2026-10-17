@@ -20,6 +20,28 @@ const { aggregateJsonReport } = require('./nodes/aggregateJsonReport');
 const { formatAsHtml } = require('./nodes/formatAsHtml');
 const { sendGmail } = require('./nodes/sendGmail');
 
+// Parses EBIRD_SEARCH_COORDS ("lat,lng;lat,lng;...") into [{ lat, lng }]. Falls back to the
+// home coordinate when the variable is unset or empty.
+function parseSearchCoords(value, fallback) {
+  const entries = (value || '')
+    .split(';')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (entries.length === 0) {
+    return [fallback];
+  }
+
+  return entries.map((entry) => {
+    const parts = entry.split(',').map((part) => part.trim());
+    const [lat, lng] = parts.map(Number);
+    if (parts.length !== 2 || parts.some((p) => p === '') || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+      throw new Error(`Invalid EBIRD_SEARCH_COORDS entry "${entry}" (expected "lat,lng")`);
+    }
+    return { lat, lng };
+  });
+}
+
 async function runWorkflow() {
   // Trigger node — purely symbolic start signal, matching what the n8n trigger emits.
   triggerManual();
@@ -28,14 +50,20 @@ async function runWorkflow() {
   const HOME_LNG = Number(process.env.HOME_LNG || -121.9370132);
   const EBIRD_DIST_KM = Number(process.env.EBIRD_DIST_KM || 50);
   const EBIRD_BACK_DAYS = Number(process.env.EBIRD_BACK_DAYS || 7);
-
-  console.log('Fetching notable eBird sightings...');
-  const rawSightings = await fetchEbirdSightings({
+  const searchCoords = parseSearchCoords(process.env.EBIRD_SEARCH_COORDS, {
     lat: HOME_LAT,
     lng: HOME_LNG,
-    distKm: EBIRD_DIST_KM,
-    backDays: EBIRD_BACK_DAYS,
   });
+
+  // One eBird call per search point; overlapping radii are deduped below.
+  console.log(`Fetching notable eBird sightings around ${searchCoords.length} search point(s)...`);
+  const responses = await Promise.all(
+    searchCoords.map(({ lat, lng }) =>
+      fetchEbirdSightings({ lat, lng, distKm: EBIRD_DIST_KM, backDays: EBIRD_BACK_DAYS })
+    )
+  );
+  const rawSightings = responses.flat();
+  console.log(`${rawSightings.length} raw sighting(s) across all searches.`);
 
   const uniqueSightings = removeDuplicateSightings(rawSightings);
   console.log(`${uniqueSightings.length} unique notable sighting(s) after dedup.`);

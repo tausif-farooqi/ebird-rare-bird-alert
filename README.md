@@ -41,9 +41,11 @@ Step by step:
 1. **Trigger** (`nodes/triggerManual.js`, `nodes/triggerSchedule.js`) — starts the run, either
    on demand (`node main.js`) or on the weekly cron tick (`node scheduler.js`).
 2. **eBirdAPI** (`nodes/ebirdApi.js`) — fetches all "notable" sightings within `EBIRD_DIST_KM`
-   of `HOME_LAT`/`HOME_LNG` over the last `EBIRD_BACK_DAYS` days.
+   of each point in `EBIRD_SEARCH_COORDS` (one API call per point, run in parallel; defaults to
+   `HOME_LAT`/`HOME_LNG`) over the last `EBIRD_BACK_DAYS` days, and concatenates the results.
 3. **Remove Duplicate Sightings** (`nodes/removeDuplicateSightings.js`) — drops exact repeat
-   observations (same species/observer/location/date/checklist).
+   observations (same species/observer/location/date/checklist), including the same sighting
+   returned by multiple searches whose radii overlap.
 4. **Add Short Coordinates** (`nodes/addShortCoordinates.js`) — flattens each sighting and adds
    `latFixed4`/`lngFixed4` (coordinates rounded to 4 decimals), which become the join key used
    later to reattach weather and distance data. This is where the pipeline **branches**:
@@ -124,6 +126,9 @@ nodes/
    - `EMAIL_TO`, `HOME_LAT`, `HOME_LNG`, `EBIRD_DIST_KM`, `EBIRD_BACK_DAYS`, `CRON_TIMEZONE` all
      have defaults matching the original workflow's hardcoded values — only change them if you
      want different behavior.
+   - `EBIRD_SEARCH_COORDS` (optional) — semicolon-separated `lat,lng` search centers, e.g.
+     `37.4894467,-121.9370132;37.7749,-122.4194`. Defaults to `HOME_LAT`/`HOME_LNG`. Driving
+     directions always start from `HOME_LAT`/`HOME_LNG` regardless of this list.
 
 ## Run on demand
 
