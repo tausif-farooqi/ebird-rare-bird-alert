@@ -20,6 +20,7 @@ function filterOutUnneededData(items) {
 
     return {
       birdName: item.comName,
+      speciesCode: item.speciesCode,
       obsDt: item.obsDt,
       howMany: Number(item.howMany),
       locName: item.locName,

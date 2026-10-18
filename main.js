@@ -17,6 +17,7 @@ const { combineSightingsAndWeather } = require('./nodes/combineSightingsAndWeath
 const { combineSightingsWeatherDistance } = require('./nodes/combineSightingsWeatherDistance');
 const { filterOutUnneededData } = require('./nodes/filterOutUnneededData');
 const { aggregateJsonReport } = require('./nodes/aggregateJsonReport');
+const { saveJsonReport } = require('./nodes/saveJsonReport');
 const { formatAsHtml } = require('./nodes/formatAsHtml');
 const { sendGmail } = require('./nodes/sendGmail');
 
@@ -94,6 +95,7 @@ async function runWorkflow() {
 
   const filtered = filterOutUnneededData(combinedAll);
   const report = aggregateJsonReport(filtered);
+  console.log(`Saved report JSON to ${saveJsonReport(report)}`);
 
   if (report.length === 0) {
     console.log('No sightings matched after enrichment. Skipping email.');
@@ -102,7 +104,7 @@ async function runWorkflow() {
 
   const { html } = formatAsHtml(report);
 
-  console.log(`Sending report email with ${report.length} bird group(s)...`);
+  console.log(`Sending report email with ${report.length} species...`);
   await sendGmail(html);
   console.log('Done.');
 }

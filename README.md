@@ -70,11 +70,15 @@ Step by step:
 8. **Filter Out Unneeded Data** (`nodes/filterOutUnneededData.js`) — flattens each joined record
    down to just the fields the report needs, including the nested `weatherNext5Days.day1..day5`
    forecast.
-9. **Aggregate JSON Report** (`nodes/aggregateJsonReport.js`) — groups sightings by
-   bird + date + location, computes max count and unique observers, and ranks groups by
-   recency, then observer count, then distance.
+9. **Aggregate JSON Report** (`nodes/aggregateJsonReport.js`) — builds a nested report:
+   species (alphabetical by common name) → location (nearest driving distance first; locations
+   with no distance last) → observation date (most recent first). Each date has the max count,
+   unique observers, and checklist links; each species has a summary (location count, nearest
+   distance, last seen date). The report is also saved to
+   `json_output/ebird-report-<timestamp>.json` (`nodes/saveJsonReport.js`).
 10. **Format as HTML → Send Gmail** (`nodes/formatAsHtml.js`, `nodes/sendGmail.js`) — renders
-    the ranked groups into the HTML email and sends it to `EMAIL_TO`.
+    one card per species, with a section per location (distance, drive time, and forecast shown
+    once) and a row per date, and sends it to `EMAIL_TO`.
 
 ## Project layout
 
@@ -101,6 +105,7 @@ nodes/
   combineSightingsWeatherDistance.js  "Combine Sightings, Weather, and Distance"
   filterOutUnneededData.js       "Filter Out Unneeded Data"
   aggregateJsonReport.js         "Aggregate JSON Report"
+  saveJsonReport.js              (new) saves the report JSON to json_output/
   formatAsHtml.js                "Format as HTML"
   sendGmail.js                   "Send a message" (Gmail)
 ```
